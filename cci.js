@@ -150,22 +150,22 @@
 
     var descriptor = {
         blocks: [
-            ["h", "init car @ %s", "init", "127.0.0.1"],
+            ["h", "init a car @ %s", "init", "127.0.0.1"],
 
-            ["R", "get car X", "get_position"],
-            ["R", "get car Y", "get_position"],
+            ["R", "get the car's X", "get_position"],
+            ["R", "get the car's Y", "get_position"],
 
-            ["R", "get car heading", "read_compass"],
+            ["R", "get the car's heading", "read_compass"],
 
-            ["R", "read NFC tag", "read_nfc"],
+            ["R", "read an NFC tag under the car", "read_nfc"],
 
-            [" ", "turn %n", "turn", 90],
-            [" ", "turn %m.directions", "turn"],
+            [" ", "turn the car %n", "turn", 90],
+            [" ", "turn the car %m.directions", "turn"],
 
-            [" ", "move", "move"],
-            [" ", "move for distance %n", "move"],
+            [" ", "move the car", "move"],
+            [" ", "move the car for distance %n", "move"],
 
-            [" ", "stop", "stop"],
+            [" ", "stop the car", "stop"],
         ],
         menus: {
             directions: [
