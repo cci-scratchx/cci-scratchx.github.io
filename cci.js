@@ -157,8 +157,6 @@
 
             ["R", "get the car's heading", "read_compass"],
 
-            ["R", "read an NFC tag under the car", "read_nfc"],
-
             [" ", "turn the car %n", "turn", 90],
             [" ", "turn the car %m.directions", "turn"],
 
@@ -166,6 +164,8 @@
             [" ", "move the car for distance %n", "move"],
 
             [" ", "stop the car", "stop"],
+
+            ["R", "read an NFC tag under the car", "read_nfc"],
         ],
         menus: {
             directions: [
