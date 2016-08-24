@@ -8,62 +8,172 @@
         return {status: 2, msg: 'Ready'};
     };
 
-    ext.get_position = function(callback) {
-        var position = '123,123';
-        callback(position);
+    var POLLING_INTERVAL = 1000;
+
+    var cciIpAddress = "";
+
+    var lps = {
+        x: 0,
+        y: 0
+    };
+    var heading = 0;
+    var tag = "";
+
+    function getCoordinates() {
+        $.ajax({
+            type: "GET",
+            url: "http://" + cciIpAddress + "/coordinates",
+
+            success: function(data) {
+                lps = data;
+            },
+            error: function(jqxhr, textStatus, error) {
+                alert(error);
+            }
+        });
+    }
+
+    function getHeading() {
+        $.ajax({
+            type: "GET",
+            url: "http://" + cciIpAddress + "/heading",
+
+            success: function(data) {
+                heading = data;
+            },
+            error: function(jqxhr, textStatus, error) {
+                alert(error);
+            }
+        });
+    }
+
+    function getNFC() {
+        $.ajax({
+            type: "GET",
+            url: "http://" + cciIpAddress + "/nfc",
+            async: false,
+
+            success: function(data) {
+                tag = data;
+            },
+            error: function(jqxhr, textStatus, error) {
+                alert(error);
+            }
+        });
+    }
+
+    function turn(heading) {
+        $.ajax({
+            type: "POST",
+            url: "http://" + cciIpAddress + "/turn?heading=" + heading,
+            async: false,
+
+            error: function(jqxhr, textStatus, error) {
+                alert(error);
+            }
+        });
+    }
+
+    function move(distance) {
+        $.ajax({
+            type: "POST",
+            url: "http://" + cciIpAddress + "/move?distance=" + distance,
+            async: false,
+
+            error: function(jqxhr, textStatus, error) {
+                alert(error);
+            }
+        });
+    }
+
+    function stop() {
+        $.ajax({
+            type: "POST",
+            url: "http://" + cciIpAddress + "/stop",
+            async: false,
+
+            error: function(jqxhr, textStatus, error) {
+                alert(error);
+            }
+        });
+    }
+
+    ext.init = function(ip) {
+        cciIpAddress = ip;
+
+        var resolved;
+        $.ajax({
+            type: "GET",
+            url: "http://" + cciIpAddress + "/health",
+            async: false,
+
+            success: function() {
+                setInterval(getCoordinates, POLLING_INTERVAL);
+                setInterval(getHeading, POLLING_INTERVAL);
+                resolved = true;
+            },
+            error: function(jqxhr, textStatus, error) {
+                resolved = false;
+            }
+        });
+
+        return resolved;
+    }
+
+    ext.get_x = function() {
+        return lps.x;
     };
 
-    ext.read_compass = function(callback) {
-        var direction = '-57';
-        callback(direction);
+    ext.get_y = function(callback) {
+        return lps.y;
     };
 
-    ext.turn = function(direction, callback) {
-        callback(direction)
+    ext.get_heading = function() {
+        return heading;
+    }
+
+    ext.read_nfc = function() {
+        return getNFC();
     };
 
-    ext.move = function(direction, callback) {
-        callback();
+    ext.turn = function(heading) {
+        turn(heading);
     };
 
-    ext.stop = function(callback) {
-        var position = '123,123';
-        callback(position);
+    ext.move = function(duration) {
+        move(duration);
     };
 
-    ext.read_nfc = function(callback) {
-        var data = "Data from the NFC tag";
-        callback(data);
+    ext.stop = function() {
+        stop();
     };
 
-    // Block and block menu descriptions
     var descriptor = {
         blocks: [
-            ['R', 'get position',               'get_position'      ],
-            ['R', 'read compass',               'read_compass'      ],
+            ['h', 'init car %s', 'init'],
 
-            ['R', 'turn %m.turn_directions',    'turn'              ],
-            ['R', 'turn %n',                    'turn'              ],
+            ['R', 'get car X', 'get_position'],
+            ['R', 'get car Y', 'get_position'],
 
-            [' ', 'move %m.move_directions',    'move_direction'    ],
-            [' ', 'move',                       'move'              ],
-            ['R', 'stop',                       'stop'              ],
+            ['R', 'get car heading', 'read_compass'],
+
+            ['R', 'read NFC tag', 'read_nfc'],
+
+            [' ', 'turn %n', 'turn'],
+            [' ', 'turn %m.directions', 'turn'],
+
+            [' ', 'move', 'move'],
+            [' ', 'move for distance %n', 'move'],
+
+            [' ', 'stop', 'stop'],
         ],
         menus: {
-            turn_directions: [
+            directions: [
                 'north',
                 'east',
                 'south',
                 'west',
             ],
-            move_directions: [
-                'forward',
-                'backwards',
-                'north',
-                'east',
-                'south',
-                'west',
-            ]
         }
     };
 

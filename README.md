@@ -4,24 +4,24 @@
 
 ### Car Info
 
-* `GET /position` 
+* `GET /coordinates` 
     Returns current car's coordinates (plain text, comma separated), e.g. `124,543`.
-* `GET /compass` 
-    Returns direction (degrees counted clockwise from the "relative North"), e.g. `-57`.
+* `GET /heading` 
+    Returns car's heading, e.g. `-57`.
 
 ### Moving the Car
 
 * `POST /turn/{direction}` 
-    Turns the car to head the specified direction (if needed) - `north`, `east`, `south`, `west` or degrees counted clockwise from the "relative North", e.g. `-57`.
-    Returns the final compass reading. 
-* `POST /move?direction={direction}` 
-    Turns (if needed) and moves the car in the specified direction (`forward`, `backwards`, `north`, `east`, `south`, `west`). Default is `forward`.
+    Turns the car to head the specified direction (if needed) - `north`, `east`, `south`, `west` or the numeric heading, e.g. `-57`.
+    Does not return anything (empty body). 
+* `POST /move?distance={distance}` 
+    Moves the car in the current direction for the specified distance or until stopped when distance is not specified. 
     Does not return anything (empty body).
 * `POST /stop`
     Stops the car.
-    Returns the coordinates where it has stopped (plain text, comma separated), e.g. `124,543`.
+    Does not return anything (empty body).
 
 ### Interacting with the Field
 
 * `GET /nfc`
-    Returns plain text data from the NFC tag.
+    Returns plain text (?) data from the NFC tag.
