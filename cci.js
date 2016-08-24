@@ -5,7 +5,7 @@
     // Status reporting code
     // Use this to report missing hardware, plugin or unsupported browser
     ext._getStatus = function() {
-        return {status: 2, msg: 'Ready'};
+        return {status: 2, msg: "Ready"};
     };
 
     var POLLING_INTERVAL = 1000;
@@ -150,33 +150,33 @@
 
     var descriptor = {
         blocks: [
-            ['h', 'init car %s', 'init'],
+            ["h", "init car @ %s", "init", "127.0.0.1"],
 
-            ['R', 'get car X', 'get_position'],
-            ['R', 'get car Y', 'get_position'],
+            ["R", "get car X", "get_position"],
+            ["R", "get car Y", "get_position"],
 
-            ['R', 'get car heading', 'read_compass'],
+            ["R", "get car heading", "read_compass"],
 
-            ['R', 'read NFC tag', 'read_nfc'],
+            ["R", "read NFC tag", "read_nfc"],
 
-            [' ', 'turn %n', 'turn'],
-            [' ', 'turn %m.directions', 'turn'],
+            [" ", "turn %n", "turn", 90],
+            [" ", "turn %m.directions", "turn"],
 
-            [' ', 'move', 'move'],
-            [' ', 'move for distance %n', 'move'],
+            [" ", "move", "move"],
+            [" ", "move for distance %n", "move"],
 
-            [' ', 'stop', 'stop'],
+            [" ", "stop", "stop"],
         ],
         menus: {
             directions: [
-                'north',
-                'east',
-                'south',
-                'west',
+                "north",
+                "east",
+                "south",
+                "west",
             ],
         }
     };
 
     // Register the extension
-    ScratchExtensions.register('CCI', descriptor, ext);
+    ScratchExtensions.register("CCI", descriptor, ext);
 })({});
