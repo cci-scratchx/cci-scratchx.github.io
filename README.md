@@ -30,8 +30,8 @@ node index.js -p 8080 -l /tmp/cci/lps -e /tmp/cci/engine -c /tmp/cci/compass -n 
 * `--port|-p` - Defines the port for the web server to listen to
 * `--cciLPS|-l` - Defines the CCI LPS filepath
 * `--cciCompass|-c` - Defines the CCI Compass filepath
-* `--cciEngine|-l` - Defines the CCI Engine filepath
-* `--cciNFC|-l` - Defines the CCI NFC filepath
+* `--cciEngine|-e` - Defines the CCI Engine filepath
+* `--cciNFC|-n` - Defines the CCI NFC filepath
 
 ## CCI ScratchX Helper App Interface 
 
