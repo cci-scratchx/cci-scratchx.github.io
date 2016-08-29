@@ -1,0 +1,14 @@
+{
+  "name": "cci-scratch-helper-app",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "argv": "0.0.2",
+    "express": "^4.14.0",
+    "url": "^0.11.0",
+    "validator": "^5.5.0"
+  }
+}

@@ -1,6 +1,7 @@
 (function(ext) {
-    // Cleanup function when the extension is unloaded
-    ext._shutdown = function() {};
+    ext._shutdown = function() {
+        stopCar();
+    };
 
     // Status reporting code
     // Use this to report missing hardware, plugin or unsupported browser
@@ -19,7 +20,7 @@
     var heading = 0;
     var tag = "";
 
-    function getCoordinates() {
+    function getCarCoordinates() {
         $.ajax({
             type: "GET",
             url: "http://" + cciIpAddress + "/coordinates",
@@ -28,12 +29,12 @@
                 lps = data;
             },
             error: function(jqxhr, textStatus, error) {
-                alert(error);
+                console.log(error);
             }
         });
     }
 
-    function getHeading() {
+    function getCarHeading() {
         $.ajax({
             type: "GET",
             url: "http://" + cciIpAddress + "/heading",
@@ -42,7 +43,7 @@
                 heading = data;
             },
             error: function(jqxhr, textStatus, error) {
-                alert(error);
+                console.log(error);
             }
         });
     }
@@ -57,43 +58,43 @@
                 tag = data;
             },
             error: function(jqxhr, textStatus, error) {
-                alert(error);
+                console.log(error);
             }
         });
     }
 
-    function turn(heading) {
+    function turnCar(heading) {
         $.ajax({
             type: "POST",
             url: "http://" + cciIpAddress + "/turn?heading=" + heading,
             async: false,
 
             error: function(jqxhr, textStatus, error) {
-                alert(error);
+                console.log(error);
             }
         });
     }
 
-    function move(distance) {
+    function moveCar(duration, distance) {
         $.ajax({
             type: "POST",
-            url: "http://" + cciIpAddress + "/move?distance=" + distance,
+            url: "http://" + cciIpAddress + "/move?duration=" + duration + "&distance=" + distance,
             async: false,
 
             error: function(jqxhr, textStatus, error) {
-                alert(error);
+                console.log(error);
             }
         });
     }
 
-    function stop() {
+    function stopCar() {
         $.ajax({
             type: "POST",
             url: "http://" + cciIpAddress + "/stop",
             async: false,
 
             error: function(jqxhr, textStatus, error) {
-                alert(error);
+                console.log(error);
             }
         });
     }
@@ -108,8 +109,8 @@
             async: false,
 
             success: function() {
-                setInterval(getCoordinates, POLLING_INTERVAL);
-                setInterval(getHeading, POLLING_INTERVAL);
+                setInterval(getCarCoordinates, POLLING_INTERVAL);
+                setInterval(getCarHeading, POLLING_INTERVAL);
                 resolved = true;
             },
             error: function(jqxhr, textStatus, error) {
@@ -137,20 +138,24 @@
     };
 
     ext.turn = function(heading) {
-        turn(heading);
+        turnCar(heading);
     };
 
-    ext.move = function(duration) {
-        move(duration);
+    ext.move_duration = function(duration) {
+        moveCar(duration, null);
+    };
+
+    ext.move_distance = function(distance) {
+        moveCar(null, distance);
     };
 
     ext.stop = function() {
-        stop();
+        stopCar();
     };
 
     var descriptor = {
         blocks: [
-            ["h", "init a car @ %s", "init", "127.0.0.1"],
+            [" ", "init a car @ %s", "init", "127.0.0.1"],
 
             ["R", "get the car's X", "get_position"],
             ["R", "get the car's Y", "get_position"],
@@ -161,7 +166,8 @@
             [" ", "turn the car %m.directions", "turn"],
 
             [" ", "move the car", "move"],
-            [" ", "move the car for distance %n", "move"],
+            [" ", "move the car for %n ms", "move_duration"],
+            [" ", "move the car for distance %n", "move_distance"],
 
             [" ", "stop the car", "stop"],
 
@@ -177,6 +183,5 @@
         }
     };
 
-    // Register the extension
     ScratchExtensions.register("CCI", descriptor, ext);
 })({});

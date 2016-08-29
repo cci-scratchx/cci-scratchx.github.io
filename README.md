@@ -1,27 +1,58 @@
 # CCI ScratchX
 
+## Prerequisites
+
+* Running [CCI](https://gitlab.emea.irdeto.com/iaa-hackathon/irdeto-cci)
+* [Node.js](https://nodejs.org/en/download/current/)
+
+## Build
+
+```
+cd helper-app
+npm install -g npm
+npm install
+```
+
+## Run
+
+```
+cd helper-app
+node index.js -p 8080 -l /tmp/cci/lps -e /tmp/cci/engine -c /tmp/cci/compass -n /tmp/cci/nfc
+```
+
+### Options
+
+`--port|-p` - Defines the port for the web server to listen to
+`--cciLPS|-l` - Defines the CCI LPS filepath
+`--cciCompass|-c` - Defines the CCI Compass filepath
+`--cciEngine|-l` - Defines the CCI Engine filepath
+`--cciNFC|-l` - Defines the CCI NFC filepath
+
 ## CCI ScratchX Helper App Interface 
 
-### Car Info
+### Getting Car Info
 
 * `GET /coordinates` 
-    Returns current car's coordinates (plain text, comma separated), e.g. `124,543`.
+    Returns current car's coordinates (plain text, space separated), e.g. `124 543`.
+    
 * `GET /heading` 
-    Returns car's heading, e.g. `-57`.
+    Returns car's heading (values from 0 to 360), e.g. `57`.
 
 ### Moving the Car
 
-* `POST /turn/{direction}` 
-    Turns the car to head the specified direction (if needed) - `north`, `east`, `south`, `west` or the numeric heading, e.g. `-57`.
+* `POST /turn?heading={heading}` 
+    Turns the car to head the specified direction (if needed) - `north`, `east`, `south`, `west` or the numeric heading (values from 0 to 360), e.g. `57`.
     Does not return anything (empty body). 
-* `POST /move?distance={distance}` 
-    Moves the car in the current direction for the specified distance or until stopped when distance is not specified. 
+    
+* `POST /move?duration={duration}&distance={distance}` 
+    Moves the car in the current direction for the specified duration (in ms) or for the specified distance (or until stopped using `GET /stop` when neither duration or distance is specified) .
     Does not return anything (empty body).
+    
 * `POST /stop`
     Stops the car.
     Does not return anything (empty body).
 
-### Interacting with the Field
+### Interacting with the "Field"
 
 * `GET /nfc`
     Returns plain text (?) data from the NFC tag.
