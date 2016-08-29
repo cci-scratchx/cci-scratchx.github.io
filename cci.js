@@ -3,13 +3,11 @@
         stopCar();
     };
 
-    // Status reporting code
-    // Use this to report missing hardware, plugin or unsupported browser
     ext._getStatus = function() {
         return {status: 2, msg: "Ready"};
     };
 
-    var POLLING_INTERVAL = 1000;
+    var POLLING_INTERVAL = 500;
 
     var cciIpAddress = "";
 
@@ -166,8 +164,8 @@
             [" ", "turn the car %m.directions", "turn"],
 
             [" ", "move the car", "move"],
-            [" ", "move the car for %n ms", "move_duration"],
-            [" ", "move the car for distance %n", "move_distance"],
+            [" ", "move the car for %n ms", "move_duration", 1000],
+            [" ", "move the car for distance %n", "move_distance", 10],
 
             [" ", "stop the car", "stop"],
 
