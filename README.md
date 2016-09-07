@@ -1,37 +1,56 @@
 # CCI ScratchX
 
-> Temporarily the ScratchX extension is available in [this github.io repo](https://github.com/mikhail-irdeto/mikhail-irdeto.github.io) (for now ScratchX only allows to hotlink extensions from github.io). 
-> Has to be moved to a proper namespace by the time of the Hackathon.
->
-> [Try it out now!](http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.js)
-
 ##  Prerequisites
 
 * Running [CCI](https://gitlab.emea.irdeto.com/iaa-hackathon/irdeto-cci)
 * [Node.js](https://nodejs.org/en/download/current/)
 
-## Build
+## Use ScratchX Extension
+
+### Build And Run ScratchX locally
+ 
+See https://github.com/LLK/scratchx 
+
+### Make Extension Available
+
+Run the simple web server to serve the Scratch extension file:
+
+```
+cd scratchx
+npm install http-server -g
+http-server -p 8080
+```
+
+### Run ScratchX
+
+When both ScratchX and the extension file server are running (e.g. on `localhost`) load ScratchX with the extension:
+
+http://localhost:8000/?url=http://localhost:8080/cci.js
+
+## Build And Run on The Car with CCI 
 
 ```
 cd helper-app
-npm install -g npm
+npm install npm -g
 npm install
 ```
 
-## Run
+Make sure CCI is running. Then run the helper app:
 
 ```
-cd helper-app
-node index.js -p 8080 -l /tmp/cci/lps -e /tmp/cci/engine -c /tmp/cci/compass -n /tmp/cci/nfc
+npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tmp/cci/map -x /tmp/cci/checkin
 ```
+
+(assuming CCI is using `/tmp/cci` directory)
 
 ### Options
 
-* `--port|-p` - Defines the port for the web server to listen to
-* `--cciLPS|-l` - Defines the CCI LPS filepath
-* `--cciCompass|-c` - Defines the CCI Compass filepath
-* `--cciEngine|-e` - Defines the CCI Engine filepath
-* `--cciNFC|-n` - Defines the CCI NFC filepath
+* `--port|-p`       - port for the web server to listen to (default is `8888`)
+* `--cciLPS|-l`     - filepath of CCI LPS 
+* `--cciCompass|-c` - filepath of CCI Compass 
+* `--cciVehicle|-v` - filepath of CCI Vehicle 
+* `--cciMap|-m`     - filepath of CCI Current Map 
+* `--cciCheckin|-x` - filepath for CCI Check-in
 
 ## CCI ScratchX Helper App Interface 
 
@@ -56,8 +75,3 @@ node index.js -p 8080 -l /tmp/cci/lps -e /tmp/cci/engine -c /tmp/cci/compass -n 
 * `POST /stop`
     Stops the car.
     Does not return anything (empty body).
-
-### Interacting with the "Field"
-
-* `GET /nfc`
-    Returns plain text (?) data from the NFC tag.

@@ -3,32 +3,38 @@ var args = require("argv").option([
         name: "port",
         short: "p",
         type: "int",
-        description: "Defines the port for the web server to listen to"
+        description: "Port for the web server to listen to"
     },
     {
         name: "cciLPS",
         short: "l",
         type: "path",
-        description: "Defines the CCI LPS filepath",
+        description: "CCI LPS filepath",
     },
     {
         name: "cciCompass",
         short: "c",
         type: "path",
-        description: "Defines the CCI Compass filepath"
+        description: "CCI Compass filepath"
     },
     {
-        name: "cciEngine",
-        short: "e",
+        name: "cciVehicle",
+        short: "v",
         type: "path",
-        description: "Defines the CCI Engine filepath"
+        description: "CCI Vehicle filepath"
     },
     {
-        name: "cciNFC",
-        short: "n",
+        name: "cciMap",
+        short: "m",
         type: "path",
-        description: "Defines the CCI NFC filepath"
-    }
+        description: "CCI Map filepath",
+    },
+    {
+        name: "cciCheckin",
+        short: "x",
+        type: "path",
+        description: "CCI Check-In filepath",
+    },
 ]).run();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +52,15 @@ var validator = require("validator");
 
 ////////////////////////////////////////////////////////////////////////////////
 
+var sleep = require("sleep");
+
+////////////////////////////////////////////////////////////////////////////////
+
+app.use(function(err, req, res) {
+    console.error(err.stack);
+    res.status(500).end(err);
+});
+
 app.get("/", function (req, res) {
     res.writeHead(200, {"Content-Type": "text/plain"});
     res.end("Hey! Ho! Let\"s Go!");
@@ -54,9 +69,17 @@ app.get("/", function (req, res) {
 ////////////////////////////////////////////////////////////////////////////////
 
 var cci = {
-    sleepInterval: 100 * 1000,
+    sleepInterval: 50 * 1000,
     lps: {
-        filepath: args.options.cciLPS
+        positioning: {
+            filepath: args.options.cciLPS
+        },
+        map : {
+            filepath: args.options.cciMap
+        },
+        checkin : {
+            filepath: args.options.cciCheckin
+        },
     },
     compass: {
         filepath: args.options.cciCompass,
@@ -68,8 +91,8 @@ var cci = {
             west : 270,
         }
     },
-    engine: {
-        filepath: args.options.cciEngine,
+    vehicle: {
+        filepath: args.options.cciVehicle,
         commands: {
             forward: "fwd",
             stop: "stp",
@@ -77,11 +100,8 @@ var cci = {
             right: "rgt",
         }
     },
-    nfc: {
-        filepath: args.options.cciNFC
-    },
 };
-if (!cci.engine || !cci.compass || !cci.nfc) {
+if (!cci.vehicle || !cci.compass) {
     throw new Error("CCI interface is not set up completely");
 }
 var fs = require("fs");
@@ -92,25 +112,19 @@ var utf8 = "UTF-8";
 
 app.get("/coordinates", function (req, res) {
     res.writeHead(200, {"Content-Type": "text/plain"});
-    res.end(
-        fs.readFileSync(cci.lps.filepath, utf8)
-    );
+    res.end(getCoordinates());
 });
 
 app.get("/heading", function (req, res) {
     res.writeHead(200, {"Content-Type": "text/plain"});
-    res.end(
-        fs.readFileSync(cci.compass.filepath, utf8)
-    );
+    res.end(getHeading());
 });
 
 app.post("/turn", function (req, res) {
-    res.writeHead(200, {"Content-Type": "text/plain"});
-
     var sleep = require("sleep");
-
     var query = url.parse(req.url, true).query;
 
+    res.writeHead(200, {"Content-Type": "text/plain"});
     if (!query.heading) {
         res.end("Missing heading query param");
         return;
@@ -128,31 +142,27 @@ app.post("/turn", function (req, res) {
         ? validator.toFloat(query.heading) % 360
         : cci.compass.namedHeadings[query.heading]
 
-    do {
+    while (Math.abs(currentHeading - targetHeading) > cci.compass.tolerance) {
         sendEngineCommand(
-            (targetHeading - currentHeading) > 180 || (targetHeading - currentHeading) < 0
-                ? cci.engine.commands.right
-                : cci.engine.commands.left
+            (targetHeading - currentHeading) >= 180 || (targetHeading - currentHeading) <= 0
+                ? cci.vehicle.commands.right
+                : cci.vehicle.commands.left
         );
         sleep.usleep(cci.sleepInterval);
         currentHeading = getHeading();
-    } while (Math.abs(currentHeading - targetHeading) > cci.compass.tolerance);
-
+    }
+    sendStopCommand();
     res.end();
 });
 
 app.post("/move", function (req, res) {
-    res.writeHead(200, {"Content-Type": "text/plain"});
-
-    var sleep = require("sleep");
-
     var query = url.parse(req.url, true).query;
 
-    if ((query.duration && query.distance) || (!query.distance && !query.duration)) {
+    res.writeHead(200, {"Content-Type": "text/plain"});
+    if (query.duration && query.distance) {
         res.end("Only one of distance/duration must be specified");
         return;
     }
-
     if (query.duration && !validator.isInt(query.duration)) {
         res.end("Invalid duration query param");
         return;
@@ -189,6 +199,11 @@ app.post("/move", function (req, res) {
         res.end();
         return;
     }
+
+    if (!query.duration && !query.distance) {
+        sendEngineCommand();
+    }
+    res.end();
 });
 
 app.post("/stop", function (req, res) {
@@ -198,16 +213,26 @@ app.post("/stop", function (req, res) {
     res.end();
 });
 
-app.get("/nfc", function (req, res) {
+app.get("/map", function (req, res) {
     res.writeHead(200, {"Content-Type": "text/plain"});
-    res.end(
-        fs.readFileSync(cci.nfc, utf8)
-    );
+    try {
+        res.end(map());
+    } catch (e) {
+        res.end(e);
+    }
+});
+
+app.post("/checkin", function (req, res) {
+    res.writeHead(200, {"Content-Type": "text/plain"});
+    res.end(checkin());
 });
 
 ////////////////////////////////////////////////////////////////////////////////
 
 function getCoordinates() {
+    if (!cci.lps.positioning.filepath) {
+        throw new Error("Checking is not configured");
+    }
     return fs.readFileSync(cci.lps.filepath, utf8)
 }
 
@@ -215,7 +240,7 @@ function getX(rawCoordinates) {
     return rawCoordinates.split(" ")[0];
 }
 
-function getY() {
+function getY(rawCoordinates) {
     return rawCoordinates.split(" ")[1];
 }
 
@@ -225,16 +250,30 @@ function getHeading() {
 
 function sendEngineCommand(command) {
     if (!command) {
-        command = cci.engine.commands.forward;
+        command = cci.vehicle.commands.forward;
     }
 
-    console.log(command);
-
-    fs.writeFileSync(cci.engine.filepath, command);
+    fs.writeFile(cci.vehicle.filepath, command, function(err) {
+        console.error(err);
+    });
 }
 
 function sendStopCommand() {
-    sendEngineCommand(cci.engine.commands.stop);
+    sendEngineCommand(cci.vehicle.commands.stop);
+}
+
+function map() {
+    if (!cci.lps.map.filepath) {
+        throw new Error("LSP Map is not configured");
+    }
+    return fs.readFileSync(cci.lps.map.filepath, utf8);
+}
+
+function checkin() {
+    if (!cci.lps.checkin.filepath) {
+        throw new Error("LPS Check-In is not configured");
+    }
+    return fs.readFileSync(cci.lps.checkin.filepath, utf8);
 }
 
 function getDistanceTravelledFrom(startX, startY) {

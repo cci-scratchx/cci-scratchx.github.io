@@ -7,21 +7,20 @@
         return {status: 2, msg: "Ready"};
     };
 
-    var POLLING_INTERVAL = 500;
+    var POLLING_INTERVAL = 200;
 
-    var cciIpAddress = "";
+    var cciAddress = "";
 
     var lps = {
         x: 0,
         y: 0
     };
     var heading = 0;
-    var tag = "";
 
     function getCarCoordinates() {
         $.ajax({
             type: "GET",
-            url: "http://" + cciIpAddress + "/coordinates",
+            url: "http://" + cciAddress + "/coordinates",
 
             success: function(data) {
                 lps = data;
@@ -35,7 +34,7 @@
     function getCarHeading() {
         $.ajax({
             type: "GET",
-            url: "http://" + cciIpAddress + "/heading",
+            url: "http://" + cciAddress + "/heading",
 
             success: function(data) {
                 heading = data;
@@ -46,25 +45,10 @@
         });
     }
 
-    function getNFC() {
-        $.ajax({
-            type: "GET",
-            url: "http://" + cciIpAddress + "/nfc",
-            async: false,
-
-            success: function(data) {
-                tag = data;
-            },
-            error: function(jqxhr, textStatus, error) {
-                console.log(error);
-            }
-        });
-    }
-
     function turnCar(heading) {
         $.ajax({
             type: "POST",
-            url: "http://" + cciIpAddress + "/turn?heading=" + heading,
+            url: "http://" + cciAddress + "/turn?heading=" + heading,
             async: false,
 
             error: function(jqxhr, textStatus, error) {
@@ -76,7 +60,7 @@
     function moveCar(duration, distance) {
         $.ajax({
             type: "POST",
-            url: "http://" + cciIpAddress + "/move?duration=" + duration + "&distance=" + distance,
+            url: "http://" + cciAddress + "/move?duration=" + duration + "&distance=" + distance,
             async: false,
 
             error: function(jqxhr, textStatus, error) {
@@ -88,7 +72,7 @@
     function stopCar() {
         $.ajax({
             type: "POST",
-            url: "http://" + cciIpAddress + "/stop",
+            url: "http://" + cciAddress + "/stop",
             async: false,
 
             error: function(jqxhr, textStatus, error) {
@@ -97,26 +81,52 @@
         });
     }
 
-    ext.init = function(ip) {
-        cciIpAddress = ip;
-
-        var resolved;
+    function getMap(callback) {
         $.ajax({
             type: "GET",
-            url: "http://" + cciIpAddress + "/health",
+            url: "http://" + cciAddress + "/map",
+            async: false,
+
+            success: function(data) {
+                callback(data);
+            },
+            error: function(jqxhr, textStatus, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function checkin(callback) {
+        $.ajax({
+            type: "POST",
+            url: "http://" + cciAddress + "/checkin",
+            async: false,
+
+            success: function(data) {
+                callback(data == "OK");
+            },
+            error: function(jqxhr, textStatus, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    ext.init = function(address) {
+        cciAddress = address;
+
+        $.ajax({
+            type: "GET",
+            url: "http://" + cciAddress + "/health",
             async: false,
 
             success: function() {
                 setInterval(getCarCoordinates, POLLING_INTERVAL);
                 setInterval(getCarHeading, POLLING_INTERVAL);
-                resolved = true;
             },
             error: function(jqxhr, textStatus, error) {
-                resolved = false;
+                console.log(error);
             }
         });
-
-        return resolved;
     }
 
     ext.get_x = function() {
@@ -130,10 +140,6 @@
     ext.get_heading = function() {
         return heading;
     }
-
-    ext.read_nfc = function() {
-        return getNFC();
-    };
 
     ext.turn = function(heading) {
         turnCar(heading);
@@ -151,25 +157,34 @@
         stopCar();
     };
 
+    ext.read_map = function() {
+        return getMap();
+    };
+
+    ext.checkin = function() {
+        checkin();
+    }
+
     var descriptor = {
         blocks: [
-            [" ", "init a car @ %s", "init", "127.0.0.1"],
+            [" ", "init a car @ %s", "init", "127.0.0.1:8888"],
 
-            ["R", "get the car's X", "get_position"],
-            ["R", "get the car's Y", "get_position"],
+            ["r", "get the car's X", "get_x"],
+            ["r", "get the car's Y", "get_y"],
 
-            ["R", "get the car's heading", "read_compass"],
+            ["r", "get the car's heading", "get_heading"],
 
             [" ", "turn the car %n", "turn", 90],
             [" ", "turn the car %m.directions", "turn"],
 
             [" ", "move the car", "move"],
             [" ", "move the car for %n ms", "move_duration", 1000],
-            [" ", "move the car for distance %n", "move_distance", 10],
+            [" ", "move the car for %n cm", "move_distance", 10],
 
             [" ", "stop the car", "stop"],
 
-            ["R", "read an NFC tag under the car", "read_nfc"],
+            ["R", "read the 'map'", "read_map"],
+            ["R", "check-in", "checkin"],
         ],
         menus: {
             directions: [
