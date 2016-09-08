@@ -30,7 +30,7 @@ var args = require("argv").option([
         description: "CCI Map filepath",
     },
     {
-        name: "cciCheckin",
+        name: "cciCheckIn",
         short: "x",
         type: "path",
         description: "CCI Check-In filepath",
@@ -56,11 +56,6 @@ var sleep = require("sleep");
 
 ////////////////////////////////////////////////////////////////////////////////
 
-app.use(function(err, req, res) {
-    console.error(err.stack);
-    res.status(500).end(err);
-});
-
 app.get("/", function (req, res) {
     res.writeHead(200, {"Content-Type": "text/plain"});
     res.end("Hey! Ho! Let\"s Go!");
@@ -78,12 +73,12 @@ var cci = {
             filepath: args.options.cciMap
         },
         checkin : {
-            filepath: args.options.cciCheckin
+            filepath: args.options.cciCheckIn
         },
     },
     compass: {
         filepath: args.options.cciCompass,
-        tolerance: 5,
+        tolerance: 2,
         namedHeadings: {
             north : 0,
             east: 90,
@@ -101,14 +96,15 @@ var cci = {
         }
     },
 };
-if (!cci.vehicle || !cci.compass) {
-    throw new Error("CCI interface is not set up completely");
+
+if (!cci.vehicle.filepath || !cci.compass.filepath) {
+    throw new Error("Required CCI components (vehicle and compass) are not configured");
 }
+
 var fs = require("fs");
+var utf8 = "UTF-8";
 
 ////////////////////////////////////////////////////////////////////////////////
-
-var utf8 = "UTF-8";
 
 app.get("/coordinates", function (req, res) {
     res.writeHead(200, {"Content-Type": "text/plain"});
@@ -231,7 +227,7 @@ app.post("/checkin", function (req, res) {
 
 function getCoordinates() {
     if (!cci.lps.positioning.filepath) {
-        throw new Error("Checking is not configured");
+        throw new Error("LPS is not configured");
     }
     return fs.readFileSync(cci.lps.filepath, utf8)
 }

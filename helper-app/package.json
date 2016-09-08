@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
 
   "scripts": {
-    "start" : "node index.js -p 8080 -l /tmp/cci/lps -c /tmp/cci/compass -v /tmp/cci/vehicle"
+    "start" : "node index.js -p 8888 -l /tmp/cci/lps -c /tmp/cci/compass -v /tmp/cci/vehicle"
   },
 
   "dependencies": {
