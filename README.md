@@ -94,3 +94,17 @@ npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tm
     
 * `POST /checkin`
     Checks in the car at its current position. Returns `OK` or `FAIL` depending on the game schedule and current position and game progress. 
+
+## Samples
+
+Extension is available to use with http://scratchx.org via temporary github repo:
+
+http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.js
+
+Also a sample project is available:
+
+http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.sbx#scratch
+
+## Known Issues
+
+When loading a saved project which was build with the extension hosted locally all the custom blocks appear as `undefined`.
