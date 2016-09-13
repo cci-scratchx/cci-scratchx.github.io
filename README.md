@@ -95,7 +95,7 @@ npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tm
 ### The "Arena"
  
 * `GET /map` 
-    Returns the "map" of the part of the "arena" around the car - the 9-elements long space delimited string with the ID of the square where the car is and the IDs of the surrounding squares in the following format: 
+    Returns the "map" of the part of the "arena" around the car - the 9-elements long comma-delimited string with the ID of the square where the car is and the IDs of the surrounding squares in the following format: 
     square where the car is, then the square on the car's North, North-East, East, South-East, South, South-West, West, North-West.
     
     E.g. for the following "arena":
@@ -107,9 +107,9 @@ npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tm
     ```
     
     * when the car's position is `13` the map is:
-        * `13 10 11 14 17 16 -1 -1 -1` 
+        * `13,10,11,14,17,16,-1,-1,-1` 
     * when car is at `14` the maps is 
-        * `14 11 12 15 18 17 16 13 10`
+        * `14,11,12,15,18,17,16,13,10`
     * etc. The notation `-1` is for the "out-of-arena" regions in that direction.
     
 * `POST /checkin`

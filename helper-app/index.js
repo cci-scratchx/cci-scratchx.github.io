@@ -78,7 +78,7 @@ var cci = {
     },
     compass: {
         filepath: args.options.cciCompass,
-        tolerance: 2,
+        tolerance: 5,
         namedHeadings: {
             north : 0,
             east: 90,
@@ -262,23 +262,14 @@ function map() {
     if (!cci.lps.map.filepath) {
         throw new Error("LSP Map is not configured");
     }
-
-    var buffer = fs.readFileSync(cci.lps.map.filepath);
-    var map = [];
-    for (var i = 0; i < 8; i++) {
-        var mapElement = buffer.readInt32BE(i, true);
-        map.push(mapElement ? mapElement : "-1");
-    }
-
-    return map.join(" ");
+    return fs.readFileSync(cci.lps.map.filepath, "utf-8");
 }
 
 function checkin() {
     if (!cci.lps.checkin.filepath) {
         throw new Error("LPS Check-In is not configured");
     }
-    var buffer = fs.readFileSync(cci.lps.checkin.filepath);
-    return buffer.readInt32BE(0, true);
+    return fs.readFileSync(cci.lps.checkin.filepath, utf8);
 }
 
 function getDistanceTravelledFrom(startX, startY) {

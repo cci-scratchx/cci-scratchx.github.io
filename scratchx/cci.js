@@ -97,7 +97,7 @@
         });
     }
 
-    function checkin(callback) {
+    function checkin() {
         $.ajax({
             type: "POST",
             url: "http://" + cciAddress + "/checkin",
@@ -164,7 +164,7 @@
     };
 
     ext.extract_element = function(index, map) {
-        var element = map.split(" ")[index];
+        var element = map.split(",")[index];
         return element ? element : "-1";
     }
 
