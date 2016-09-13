@@ -133,7 +133,7 @@
         return lps.x;
     };
 
-    ext.get_y = function(callback) {
+    ext.get_y = function() {
         return lps.y;
     };
 
