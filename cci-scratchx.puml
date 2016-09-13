@@ -1,0 +1,47 @@
+@startuml
+
+cloud {
+    node "ScratchX" {
+        [ScratchX CCI Extension]
+
+        [ScratchX Program] -> [ScratchX Program]
+        [ScratchX Program] ..> [ScratchX CCI Extension]
+    }
+
+    node "The Car (Raspberry Pi)" {
+        [CCI]
+        HTTP -- [CCI Helper App]
+        [CCI Helper App] --> [CCI] : via file system
+
+        note left of [CCI]
+            Provided.
+            Low-level
+            car interface.
+        end note
+    }
+
+    [ScratchX CCI Extension] --> HTTP
+}
+
+note left of [ScratchX Program]
+    You write it! ;)
+end note
+
+note left of [ScratchX CCI Extension]
+    Provided.
+    Load it from
+    github.io or
+    local web server.
+end note
+
+note top of ScratchX
+ Use http://scratchx.org/ or hosted locally
+end note
+
+note left of [CCI Helper App]
+    Provided.
+    Express web app
+    (Node.js)
+end note
+
+@enduml

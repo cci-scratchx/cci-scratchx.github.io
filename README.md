@@ -1,5 +1,9 @@
 # CCI ScratchX
 
+## How It Works
+
+![cci-scratchx-diagram](cci-scratch.png)
+
 ##  Prerequisites
 
 * A running instance of [CCI](https://gitlab.emea.irdeto.com/iaa-hackathon/irdeto-cci)
@@ -104,6 +108,12 @@ http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.js
 Also a sample project is available:
 
 http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.sbx#scratch
+
+## Scratch How To
+
+See the Scratch [How To Pages](https://wiki.scratch.mit.edu/wiki/Category:How_To_Pages)
+
+For advanced ScratchX information see https://github.com/LLK/scratchx/wiki
 
 ## Known Issues
 
