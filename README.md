@@ -4,12 +4,22 @@
 
 ![cci-scratchx-diagram](cci-scratchx.png)
 
-##  Prerequisites
+## Prerequisites
 
 * A running instance of [CCI](https://gitlab.emea.irdeto.com/iaa-hackathon/irdeto-cci)
 * [Node.js](https://nodejs.org/en/download/current/)
 
-## Use ScratchX Extension
+## Hosted ScratchX and Extension
+
+Extension is available to use with http://scratchx.org via temporary github repo:
+
+http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.js
+
+Also a sample project is available:
+
+http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.sbx#scratch
+
+## Local ScratchX and Extension
 
 ### Build And Run ScratchX locally
  
@@ -31,15 +41,17 @@ When both ScratchX and the extension file server are running (e.g. on `localhost
 
 http://localhost:8000/?url=http://localhost:8080/cci.js
 
-## Build And Run on The Car with CCI 
+## Helper App on The GoPiGo2 with CCI 
+
+Clone this repository on the GoPiGo2 
 
 ```
-cd helper-app
+cd cci-scratchx/helper-app
 npm install npm -g
 npm install
 ```
 
-Make sure CCI is running. Then run the helper app:
+Make sure CCI is running. Then run the Helper App:
 
 ```
 npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tmp/cci/map -x /tmp/cci/checkin
@@ -58,7 +70,7 @@ npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tm
 
 ## CCI ScratchX Helper App Interface 
 
-### Getting Car Info
+### GoPiGo2 State
 
 * `GET /coordinates` 
     Returns current car's coordinates (plain text, space separated), e.g. `124 543`. Requires CCI LPS to be set up.
@@ -66,7 +78,7 @@ npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tm
 * `GET /heading` 
     Returns car's heading (values from 0 to 360), e.g. `57`.
 
-### Moving The Car
+### Moving GoPiGo2
 
 * `POST /turn?heading={heading}` 
     Turns the car to head the specified direction (if needed) - `north`, `east`, `south`, `west` or the numeric heading (values from 0 to 360), e.g. `57`.
@@ -98,16 +110,6 @@ npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tm
     
 * `POST /checkin`
     Checks in the car at its current position. Returns `OK` or `FAIL` depending on the game schedule and current position and game progress. 
-
-## Samples
-
-Extension is available to use with http://scratchx.org via temporary github repo:
-
-http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.js
-
-Also a sample project is available:
-
-http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.sbx#scratch
 
 ## Scratch How To
 

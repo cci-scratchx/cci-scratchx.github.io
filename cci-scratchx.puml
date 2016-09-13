@@ -8,7 +8,7 @@ cloud {
         [ScratchX Program] ..> [ScratchX CCI Extension]
     }
 
-    node "The Car (Raspberry Pi)" {
+    node "GoPiGo2 (Raspberry Pi)" {
         [CCI]
         HTTP -- [CCI Helper App]
         [CCI Helper App] --> [CCI] : via file system
@@ -16,7 +16,7 @@ cloud {
         note left of [CCI]
             Provided.
             Low-level
-            car interface.
+            GoPiGo2 interface.
         end note
     }
 
