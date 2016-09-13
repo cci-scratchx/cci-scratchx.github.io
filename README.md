@@ -43,7 +43,7 @@ http://localhost:8000/?url=http://localhost:8080/cci.js
 
 ## Helper App on The GoPiGo2 with CCI 
 
-Clone this repository on the GoPiGo2 
+Clone this repository to the GoPiGo2 and install dependencies: 
 
 ```
 cd cci-scratchx/helper-app
@@ -51,13 +51,13 @@ npm install npm -g
 npm install
 ```
 
-Make sure CCI is running. Then run the Helper App:
+Make sure CCI is running. Then run the CCI ScratchX Helper App:
 
 ```
-npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tmp/cci/map -x /tmp/cci/checkin
+node index.js -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tmp/cci/neighbors -x /tmp/cci/checkin
 ```
 
-(assuming CCI is using `/tmp/cci` directory)
+(assuming CCI working directory is `/tmp/cci/`).
 
 ### Options
 
@@ -121,6 +121,7 @@ See the Scratch [How To Pages](https://wiki.scratch.mit.edu/wiki/Category:How_To
 
 For advanced ScratchX information see https://github.com/LLK/scratchx/wiki
 
-## Known Issues
+## Known Issues and Limitations
 
-When loading a saved project which was build with the extension hosted locally all the custom blocks appear as `undefined`.
+* When loading a saved project which was build with the extension hosted locally all the custom blocks appear as `undefined`.
+* Helper App is single threaded.

@@ -7,24 +7,26 @@
         return {status: 2, msg: "Ready"};
     };
 
-    var POLLING_INTERVAL = 200;
-
     var cciAddress = "";
 
-    var lps = {
-        x: 0,
-        y: 0
-    };
-    var heading = 0;
-    var lastCheckin = false;
+    var lastCheckInResult = false;
 
-    function getCarCoordinates() {
+    function getCarCoordinates(callback, coordinate) {
         $.ajax({
             type: "GET",
             url: "http://" + cciAddress + "/coordinates",
 
-            success: function(data) {
-                lps = data;
+            success: function(lpsResponse) {
+              switch (coordinate) {
+                  case "x":
+                    callback(lpsResponse.split(" ")[0]);
+                    break;
+                  case "y":
+                    callback(lpsResponse.split(" ")[1]);
+                    break;
+                  default:
+                    callback(lpsResponse);
+              }
             },
             error: function(jqxhr, textStatus, error) {
                 console.log(error);
@@ -32,13 +34,13 @@
         });
     }
 
-    function getCarHeading() {
+    function getCarHeading(callback) {
         $.ajax({
             type: "GET",
             url: "http://" + cciAddress + "/heading",
 
-            success: function(data) {
-                heading = data;
+            success: function(heading) {
+              callback(heading);
             },
             error: function(jqxhr, textStatus, error) {
                 console.log(error);
@@ -49,22 +51,31 @@
     function turnCar(heading) {
         $.ajax({
             type: "POST",
-            url: "http://" + cciAddress + "/turn?heading=" + heading,
+            url: "http://" + cciAddress + "/turn?heading=" + heading.toLowerCase(),
             async: false,
 
             error: function(jqxhr, textStatus, error) {
+                stopCar();
                 console.log(error);
             }
         });
     }
 
     function moveCar(duration, distance) {
+        var params = "";
+        if (distance) {
+            params = "?distance=" + distance;
+        } else if (duration) {
+            params = "?duration=" + duration;
+        }
+
         $.ajax({
             type: "POST",
-            url: "http://" + cciAddress + "/move?duration=" + duration + "&distance=" + distance,
+            url: "http://" + cciAddress + "/move" + params,
             async: false,
 
             error: function(jqxhr, textStatus, error) {
+                stopCar();
                 console.log(error);
             }
         });
@@ -88,8 +99,8 @@
             url: "http://" + cciAddress + "/map",
             async: false,
 
-            success: function(data) {
-                callback(data);
+            success: function(map) {
+                callback(map);
             },
             error: function(jqxhr, textStatus, error) {
                 console.log(error);
@@ -97,18 +108,18 @@
         });
     }
 
-    function checkin() {
+    function checkIn() {
         $.ajax({
             type: "POST",
             url: "http://" + cciAddress + "/checkin",
             async: false,
 
-            success: function(data) {
-                lastCheckin = !!data;
+            success: function(checkin) {
+                lastCheckInResult = (checkin == "1");
             },
             error: function(jqxhr, textStatus, error) {
+                lastCheckInResult = false;
                 console.log(error);
-                lastCheckin = false;
             }
         });
     }
@@ -118,33 +129,33 @@
 
         $.ajax({
             type: "GET",
-            url: "http://" + cciAddress + "/health",
+            url: "http://" + cciAddress,
             async: false,
 
-            success: function() {
-                setInterval(getCarCoordinates, POLLING_INTERVAL);
-                setInterval(getCarHeading, POLLING_INTERVAL);
-            },
             error: function(jqxhr, textStatus, error) {
                 console.log(error);
             }
         });
     }
 
-    ext.get_x = function() {
-        return lps.x;
+    ext.get_x = function(callback) {
+        getCarCoordinates(callback, "x");
     };
 
-    ext.get_y = function() {
-        return lps.y;
+    ext.get_y = function(callback) {
+        getCarCoordinates(callback, "y");
     };
 
-    ext.get_heading = function() {
-        return heading;
+    ext.get_heading = function(callback) {
+        getCarHeading(callback);
     }
 
     ext.turn = function(heading) {
         turnCar(heading);
+    };
+
+    ext.move = function() {
+        moveCar();
     };
 
     ext.move_duration = function(duration) {
@@ -159,38 +170,38 @@
         stopCar();
     };
 
-    ext.read_map = function() {
-        return getMap();
+    ext.read_map = function(callback) {
+        getMap(callback);
     };
 
-    ext.extract_element = function(index, map) {
+    ext.extract_map_schedule_element = function(index, map) {
         var element = map.split(",")[index];
         return element ? element : "-1";
     }
 
     ext.checkin = function() {
-        checkin();
+        checkIn();
     };
 
     ext.report_checkin = function() {
-        return lastCheckin;
+        return lastCheckInResult;
     };
 
     var descriptor = {
         blocks: [
             [" ", "init a car @ %s", "init", "127.0.0.1:8888"],
 
-            ["r", "get the car's X", "get_x"],
-            ["r", "get the car's Y", "get_y"],
+            ["R", "car's X", "get_x"],
+            ["R", "car's Y", "get_y"],
 
-            ["r", "get the car's heading", "get_heading"],
+            ["R", "car's heading", "get_heading"],
 
-            [" ", "turn the car %n", "turn", 90],
             [" ", "turn the car %m.directions", "turn"],
+            [" ", "turn the car to %n", "turn", 45],
 
             [" ", "move the car", "move"],
             [" ", "move the car for %n ms", "move_duration", 1000],
-            [" ", "move the car for %n cm", "move_distance", 10],
+            [" ", "move the car %n (~cm)", "move_distance", 10],
 
             [" ", "stop the car", "stop"],
 
@@ -201,12 +212,15 @@
         ],
         menus: {
             directions: [
-                "north",
-                "east",
-                "south",
-                "west",
+                "North",
+                "North-East",
+                "East",
+                "South-East",
+                "South",
+                "South-West",
+                "West",
+                "North-West",
             ],
-
         }
     };
 

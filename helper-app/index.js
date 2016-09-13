@@ -39,9 +39,10 @@ var args = require("argv").option([
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var express = require("express"), url = require("url")
+var express = require("express"), url = require("url"), cors = require("cors"),
     app = express(),
     server = require("http").createServer(app);
+    app.use(cors());
 server.listen(args.options.port ? args.options.port : 8888);
 
 process.on("uncaughtException", function(err) {
@@ -64,7 +65,6 @@ app.get("/", function (req, res) {
 ////////////////////////////////////////////////////////////////////////////////
 
 var cci = {
-    sleepInterval: 50 * 1000,
     lps: {
         positioning: {
             filepath: args.options.cciLPS
@@ -80,10 +80,14 @@ var cci = {
         filepath: args.options.cciCompass,
         tolerance: 5,
         namedHeadings: {
-            north : 0,
-            east: 90,
-            south: 180,
-            west : 270,
+            "north" : 0,
+            "north-east" : 45,
+            "east" : 90,
+            "south-east" : 135,
+            "south" : 180,
+            "south-west": 225,
+            "west" : 270,
+            "north-west" : 315,
         }
     },
     vehicle: {
@@ -95,6 +99,8 @@ var cci = {
             right: "rgt",
         }
     },
+    timeout_ms: 20 * 1000,
+    sleep_us: 20 * 1000,
 };
 
 if (!cci.vehicle.filepath || !cci.compass.filepath) {
@@ -135,17 +141,33 @@ app.post("/turn", function (req, res) {
     var currentHeading = startHeading;
 
     var targetHeading = validator.isNumeric(query.heading)
-        ? validator.toFloat(query.heading) % 360
+        ? validator.toFloat(query.heading)
         : cci.compass.namedHeadings[query.heading]
 
-    while (Math.abs(currentHeading - targetHeading) > cci.compass.tolerance) {
-        sendEngineCommand(
-            (targetHeading - currentHeading) >= 180 || (targetHeading - currentHeading) <= 0
-                ? cci.vehicle.commands.right
-                : cci.vehicle.commands.left
-        );
-        sleep.usleep(cci.sleepInterval);
-        currentHeading = getHeading();
+    var start = new Date().getTime();
+
+    var delta = Math.abs(currentHeading - targetHeading);
+    var command;
+    while (delta >= cci.compass.tolerance || new Date().getTime() - start < cci.timeout_ms) {
+        if (targetHeading > currentHeading) {
+            if (delta <= 180) {
+                command = cci.vehicle.commands.right;
+            } else {
+                command = cci.vehicle.commands.left;
+                delta = 360 - delta;
+            }
+        } else {
+            if (delta <= 180) {
+                command = cci.vehicle.commands.left;
+            } else {
+                command = cci.vehicle.commands.right;
+                delta = 360 - delta;
+            }
+        }
+        sendEngineCommand(command);
+        sleep.usleep(cci.sleep_us);
+
+        delta = Math.abs(getHeading() - targetHeading);
     }
     sendStopCommand();
     res.end();
@@ -188,7 +210,7 @@ app.post("/move", function (req, res) {
 
         sendEngineCommand();
         do {
-            sleep.usleep(cci.sleepInterval);
+            sleep.usleep(cci.sleep_us);
         } while (getDistanceTravelledFrom(startX, startY) < distance);
         sendStopCommand();
 
@@ -229,7 +251,7 @@ function getCoordinates() {
     if (!cci.lps.positioning.filepath) {
         throw new Error("LPS is not configured");
     }
-    return fs.readFileSync(cci.lps.filepath, utf8)
+    return fs.readFileSync(cci.lps.positioning.filepath, utf8)
 }
 
 function getX(rawCoordinates) {
@@ -248,10 +270,7 @@ function sendEngineCommand(command) {
     if (!command) {
         command = cci.vehicle.commands.forward;
     }
-
-    fs.writeFile(cci.vehicle.filepath, command, function(err) {
-        console.error(err);
-    });
+    fs.writeFileSync(cci.vehicle.filepath, command);
 }
 
 function sendStopCommand() {
@@ -276,6 +295,6 @@ function getDistanceTravelledFrom(startX, startY) {
     var currentCoordinates = getCoordinates();
     var currentX = getX(currentCoordinates), currentY = getY(currentCoordinates);
     return Math.sqrt(
-        Math.pow(currentX - startX, 2) + Math.pow(currentY - startY)
+        Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2)
     );
 }
