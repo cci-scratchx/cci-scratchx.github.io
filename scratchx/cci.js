@@ -16,6 +16,7 @@
         y: 0
     };
     var heading = 0;
+    var lastCheckin = false;
 
     function getCarCoordinates() {
         $.ajax({
@@ -103,10 +104,11 @@
             async: false,
 
             success: function(data) {
-                callback(data == "OK");
+                lastCheckin = !!data;
             },
             error: function(jqxhr, textStatus, error) {
                 console.log(error);
+                lastCheckin = false;
             }
         });
     }
@@ -161,9 +163,18 @@
         return getMap();
     };
 
+    ext.extract_element = function(index, map) {
+        var element = map.split(" ")[index];
+        return element ? element : "-1";
+    }
+
     ext.checkin = function() {
         checkin();
-    }
+    };
+
+    ext.report_checkin = function() {
+        return lastCheckin;
+    };
 
     var descriptor = {
         blocks: [
@@ -183,8 +194,10 @@
 
             [" ", "stop the car", "stop"],
 
-            ["R", "read the 'map'", "read_map"],
-            ["R", "check-in", "checkin"],
+            ["R", "read the \"map\"", "read_map"],
+            ["r", "get %n \"checkpoint\" of %s", "extract_element", 1, ""],
+            [" ", "check-in", "checkin"],
+            ["b", "last check-in successful", "report_checkin"],
         ],
         menus: {
             directions: [
@@ -193,8 +206,9 @@
                 "south",
                 "west",
             ],
+
         }
     };
 
-    ScratchExtensions.register("CCI", descriptor, ext);
+    ScratchExtensions.register("Irdeto Hackathon 2016 CCI", descriptor, ext);
 })({});

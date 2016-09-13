@@ -92,24 +92,28 @@ npm start -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tm
     Stops the car.
     Does not return anything (empty body).
 
-### Interacting with The Game "Environment"
+### The "Arena"
  
 * `GET /map` 
-    Returns the "map" of the field area around the car - the 9-chars long string with the symbols denoting the surrounding squares in the following format: 
-    square where the car is, then the square on the car's North, North-East, East, South-East, South, South-West, West, North-West. The symbol on any of the position `-` stands for the out-of-field area in that direction.
+    Returns the "map" of the part of the "arena" around the car - the 9-elements long space delimited string with the ID of the square where the car is and the IDs of the surrounding squares in the following format: 
+    square where the car is, then the square on the car's North, North-East, East, South-East, South, South-West, West, North-West.
     
-    E.g. for the following map:
+    E.g. for the following "arena":
     
     ```
-    QWER
-    ASDF
-    ZXCV
+    10 11 12
+    13 14 15
+    16 17 18
     ```
     
-    when the car's position is `A` the map is `QWSXZ---`, when car is at `S` the maps is `SQWEDCXZA`, etc.
+    * when the car's position is `13` the map is:
+        * `13 10 11 14 17 16 -1 -1 -1` 
+    * when car is at `14` the maps is 
+        * `14 11 12 15 18 17 16 13 10`
+    * etc. The notation `-1` is for the "out-of-arena" regions in that direction.
     
 * `POST /checkin`
-    Checks in the car at its current position. Returns `OK` or `FAIL` depending on the game schedule and current position and game progress. 
+    Checks in the car at its current position. Returns `1` (success) or `0` (failure) depending on the game schedule and current position and game progress. 
 
 ## Scratch How To
 

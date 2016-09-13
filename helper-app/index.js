@@ -262,14 +262,23 @@ function map() {
     if (!cci.lps.map.filepath) {
         throw new Error("LSP Map is not configured");
     }
-    return fs.readFileSync(cci.lps.map.filepath, utf8);
+
+    var buffer = fs.readFileSync(cci.lps.map.filepath);
+    var map = [];
+    for (var i = 0; i < 8; i++) {
+        var mapElement = buffer.readInt32BE(i, true);
+        map.push(mapElement ? mapElement : "-1");
+    }
+
+    return map.join(" ");
 }
 
 function checkin() {
     if (!cci.lps.checkin.filepath) {
         throw new Error("LPS Check-In is not configured");
     }
-    return fs.readFileSync(cci.lps.checkin.filepath, utf8);
+    var buffer = fs.readFileSync(cci.lps.checkin.filepath);
+    return buffer.readInt32BE(0, true);
 }
 
 function getDistanceTravelledFrom(startX, startY) {
