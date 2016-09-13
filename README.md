@@ -2,7 +2,7 @@
 
 ## How It Works
 
-![cci-scratchx-diagram](cci-scratch.png)
+![cci-scratchx-diagram](cci-scratchx.png)
 
 ##  Prerequisites
 
