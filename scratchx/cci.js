@@ -55,6 +55,9 @@
             url: "http://" + cciAddress + "/turn?heading=" + heading.toLowerCase(),
             async: false,
 
+            success: function() {
+                stopCar();
+            },
             error: function(jqxhr, textStatus, error) {
                 stopCar();
                 console.log(error);
@@ -75,6 +78,9 @@
             url: "http://" + cciAddress + "/move" + params,
             async: false,
 
+            success: function() {
+                stopCar();
+            },
             error: function(jqxhr, textStatus, error) {
                 stopCar();
                 console.log(error);
@@ -134,7 +140,7 @@
             async: false,
 
             error: function(jqxhr, textStatus, error) {
-                console.log(error);
+                console.error(error);
             }
         });
     }
@@ -149,9 +155,13 @@
 
     ext.get_heading = function(callback) {
         getCarHeading(callback);
-    }
+    };
 
-    ext.turn = function(heading) {
+    ext.turn_num_heading = function(heading) {
+        turnCar(heading);
+    };
+
+    ext.turn_named_heading = function(heading) {
         turnCar(heading);
     };
 
@@ -197,8 +207,8 @@
 
             ["R", "car's heading", "get_heading"],
 
-            [" ", "turn the car %m.directions", "turn"],
-            [" ", "turn the car to %n", "turn", 45],
+            [" ", "turn the car %m.directions", "turn_named_heading"],
+            [" ", "turn the car to %n", "turn_num_heading", 45],
 
             [" ", "move the car", "move"],
             [" ", "move the car for %n ms", "move_duration", 1000],

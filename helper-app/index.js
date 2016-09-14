@@ -252,7 +252,7 @@ function getCoordinates() {
     if (!cci.lps.positioning.filepath) {
         throw new Error("LPS is not configured");
     }
-    return fs.readFileSync(cci.lps.positioning.filepath, utf8)
+    return fs.readFileSync(cci.lps.positioning.filepath, utf8).replace(/^\s+|\s+$/g, '');
 }
 
 function getX(rawCoordinates) {
@@ -264,7 +264,7 @@ function getY(rawCoordinates) {
 }
 
 function getHeading() {
-    return fs.readFileSync(cci.compass.filepath, utf8)
+    return fs.readFileSync(cci.compass.filepath, utf8).replace(/^\s+|\s+$/g, '');
 }
 
 function sendEngineCommand(command) {
@@ -282,14 +282,14 @@ function map() {
     if (!cci.lps.map.filepath) {
         throw new Error("LSP Map is not configured");
     }
-    return fs.readFileSync(cci.lps.map.filepath, "utf-8");
+    return fs.readFileSync(cci.lps.map.filepath, "utf-8").replace(/^\s+|\s+$/g, '');
 }
 
 function checkin() {
     if (!cci.lps.checkin.filepath) {
         throw new Error("LPS Check-In is not configured");
     }
-    return fs.readFileSync(cci.lps.checkin.filepath, utf8);
+    return fs.readFileSync(cci.lps.checkin.filepath, utf8).replace(/^\s+|\s+$/g, '');
 }
 
 function getDistanceTravelledFrom(startX, startY) {

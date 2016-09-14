@@ -1,27 +1,27 @@
 @startuml
 
-cloud {
-    node "ScratchX" {
-        [ScratchX CCI Extension]
 
-        [ScratchX Program] -> [ScratchX Program]
-        [ScratchX Program] ..> [ScratchX CCI Extension]
-    }
+node "ScratchX" {
+    [ScratchX CCI Extension]
 
-    node "GoPiGo2 (Raspberry Pi)" {
-        [CCI]
-        HTTP -- [CCI Helper App]
-        [CCI Helper App] --> [CCI] : via file system
-
-        note left of [CCI]
-            Provided.
-            Low-level
-            GoPiGo2 interface.
-        end note
-    }
-
-    [ScratchX CCI Extension] --> HTTP
+    [ScratchX Program] -> [ScratchX Program]
+    [ScratchX Program] ..> [ScratchX CCI Extension]
 }
+
+node "GoPiGo2 (Raspberry Pi)" {
+    [CCI]
+    HTTP -- [CCI Helper App]
+    [CCI Helper App] --> [CCI] : via file system
+
+    note left of [CCI]
+        Provided.
+        Lower-level
+        GoPiGo2 interface.
+    end note
+}
+
+[ScratchX CCI Extension] --> HTTP
+
 
 note left of [ScratchX Program]
     You build it! ;)

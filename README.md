@@ -11,13 +11,14 @@
 
 ## Hosted ScratchX and Extension
 
-Extension is available to use with http://scratchx.org via temporary github repo:
+Extension is available to use with http://scratchx.org via github.io:
 
-http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.js
+http://scratchx.org/?url=https://cci-scratchx.github.io/cci.js
 
-Also a sample project is available:
+Also sample projects are available:
 
-http://scratchx.org/?url=https://mikhail-irdeto.github.io/cci.sbx#scratch
+http://scratchx.org/?url=https://cci-scratchx.github.io/cci_simple.sbx#scratch
+http://scratchx.org/?url=https://cci-scratchx.github.io/cci_checkin.sbx#scratch
 
 ## Local ScratchX and Extension
 
@@ -125,3 +126,4 @@ For advanced ScratchX information see https://github.com/LLK/scratchx/wiki
 
 * When loading a saved project which was build with the extension hosted locally all the custom blocks appear as `undefined`.
 * Helper App is single threaded.
+* ScratchX block 'turn the car to %n' is very unstable for some reason. 
