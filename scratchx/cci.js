@@ -1,6 +1,7 @@
 (function(ext) {
     ext._shutdown = function() {
         stopCar();
+        cciAddress = "";
     };
 
     ext._getStatus = function() {
@@ -103,7 +104,7 @@
                 callback(map);
             },
             error: function(jqxhr, textStatus, error) {
-                console.log(error);
+                console.error(error);
             }
         });
     }
@@ -174,8 +175,8 @@
         getMap(callback);
     };
 
-    ext.extract_map_schedule_element = function(index, map) {
-        var element = map.split(",")[index];
+    ext.extract_map_schedule_element = function(index, commaSeparatedString) {
+        var element = commaSeparatedString.split(",")[index];
         return element ? element : "-1";
     }
 
@@ -206,7 +207,7 @@
             [" ", "stop the car", "stop"],
 
             ["R", "read the \"map\"", "read_map"],
-            ["r", "get %n \"checkpoint\" of %s", "extract_element", 1, ""],
+            ["r", "get %n \"checkpoint\" of %s", "extract_map_schedule_element", 0, ""],
             [" ", "check-in", "checkin"],
             ["b", "last check-in successful", "report_checkin"],
         ],

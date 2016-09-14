@@ -99,8 +99,8 @@ var cci = {
             right: "rgt",
         }
     },
-    timeout_ms: 20 * 1000,
-    sleep_us: 20 * 1000,
+    timeout_ms: 10 * 1000,
+    sleep_us: 10 * 1000,
 };
 
 if (!cci.vehicle.filepath || !cci.compass.filepath) {
@@ -148,7 +148,7 @@ app.post("/turn", function (req, res) {
 
     var delta = Math.abs(currentHeading - targetHeading);
     var command;
-    while (delta >= cci.compass.tolerance || new Date().getTime() - start < cci.timeout_ms) {
+    while (delta >= cci.compass.tolerance && new Date().getTime() - start < cci.timeout_ms) {
         if (targetHeading > currentHeading) {
             if (delta <= 180) {
                 command = cci.vehicle.commands.right;
@@ -208,10 +208,11 @@ app.post("/move", function (req, res) {
 
         var distance = validator.toFloat(query.distance);
 
+        var start = new Date().getTime();
         sendEngineCommand();
         do {
             sleep.usleep(cci.sleep_us);
-        } while (getDistanceTravelledFrom(startX, startY) < distance);
+        } while (getDistanceTravelledFrom(startX, startY) < distance && new Date().getTime() - start < cci.timeout_ms);
         sendStopCommand();
 
         res.end();
