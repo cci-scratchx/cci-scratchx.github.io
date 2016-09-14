@@ -17,8 +17,10 @@ http://scratchx.org/?url=https://cci-scratchx.github.io/scratchx/cci.js
 
 Also sample projects are available (download and open in do File -> Load Project in ScratchX):
 
-https://cci-scratchx.github.io/scratchx/cci_simple.sbx#scratch
-https://cci-scratchx.github.io/scratchx/cci_checkin.sbx#scratch
+https://cci-scratchx.github.io/scratchx/cci_simple.sbx
+
+https://cci-scratchx.github.io/scratchx/cci_checkin.sbx
+
 
 ## Local ScratchX and Extension
 
