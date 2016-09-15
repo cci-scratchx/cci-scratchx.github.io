@@ -94,9 +94,11 @@ var cci = {
         filepath: args.options.cciVehicle,
         commands: {
             forward: "fwd",
-            stop: "stp",
+            backward: "bwd",
             left: "lft",
             right: "rgt",
+
+            stop: "stp",
         }
     },
     timeout_ms: 10 * 1000,
@@ -222,6 +224,30 @@ app.post("/move", function (req, res) {
     if (!query.duration && !query.distance) {
         sendEngineCommand();
     }
+    res.end();
+});
+
+app.post("/move-:command", function(req, res) {
+    var query = url.parse(req.url, true).query;
+
+    res.writeHead(200, {"Content-Type": "text/plain"});
+
+    if (!validator.isIn(req.params.command.toLowerCase(), Object.keys(cci.vehicle.commands))) {
+        res.end("Invalid command param");
+        return;
+    }
+    var command = cci.vehicle.commands[req.params.command];
+
+    if (query.duration && !validator.isInt(query.duration)) {
+        res.end("Invalid duration query param");
+        return;
+    }
+    var duration = validator.toInt(query.duration);
+
+    sendEngineCommand(command);
+    sleep.usleep(duration * 1000);
+    sendStopCommand();
+
     res.end();
 });
 

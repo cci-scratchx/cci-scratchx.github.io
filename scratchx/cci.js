@@ -49,10 +49,10 @@
         });
     }
 
-    function turnCar(heading) {
+    function moveCar(command, duration) {
         $.ajax({
             type: "POST",
-            url: "http://" + cciAddress + "/turn?heading=" + heading.toLowerCase(),
+            url: "http://" + cciAddress + "/move-" + command.toLowerCase() + "?duration=" + duration,
             async: false,
 
             success: function() {
@@ -65,7 +65,7 @@
         });
     }
 
-    function moveCar(duration, distance) {
+    function moveCarStraight(duration, distance) {
         var params = "";
         if (distance) {
             params = "?distance=" + distance;
@@ -76,6 +76,22 @@
         $.ajax({
             type: "POST",
             url: "http://" + cciAddress + "/move" + params,
+            async: false,
+
+            success: function() {
+                stopCar();
+            },
+            error: function(jqxhr, textStatus, error) {
+                stopCar();
+                console.log(error);
+            }
+        });
+    }
+
+    function turnCar(heading) {
+        $.ajax({
+            type: "POST",
+            url: "http://" + cciAddress + "/turn?heading=" + heading.toLowerCase(),
             async: false,
 
             success: function() {
@@ -165,16 +181,20 @@
         turnCar(heading);
     };
 
-    ext.move = function() {
-        moveCar();
+    ext.move_straight = function() {
+        moveCarStraight(null, null);
     };
 
-    ext.move_duration = function(duration) {
-        moveCar(duration, null);
+    ext.move_straight_duration = function(duration) {
+        moveCarStraight(duration, null);
     };
 
-    ext.move_distance = function(distance) {
-        moveCar(null, distance);
+    ext.move_straight_distance = function(distance) {
+        moveCarStraight(null, distance);
+    };
+
+    ext.move = function(command, duration) {
+        moveCar(command, duration);
     };
 
     ext.stop = function() {
@@ -207,17 +227,18 @@
 
             ["R", "car's heading", "get_heading"],
 
-            [" ", "turn the car %m.directions", "turn_named_heading"],
-            [" ", "turn the car to %n", "turn_num_heading", 45],
-
-            [" ", "move the car", "move"],
-            [" ", "move the car for %n ms", "move_duration", 1000],
-            [" ", "move the car %n (~cm)", "move_distance", 10],
-
+            [" ", "move the car forward", "move_straight"],
+            [" ", "move %m.movement_commands for %n ms", "move", "forward", 1000],
             [" ", "stop the car", "stop"],
 
+            [" ", "turn the car %m.directions", "turn_named_heading", "North"],
+            [" ", "turn the car to %n", "turn_num_heading", 45],
+
+            [" ", "move the car forward for %n ms", "move_straight_duration", 1000],
+            [" ", "move the car %n (~cm) forward", "move_straight_distance", 10],
+
             ["R", "read the \"map\"", "read_map"],
-            ["r", "get %n \"checkpoint\" of %s", "extract_map_schedule_element", 0, ""],
+            ["r", "get %n \"checkpoint\" of %s", "extract_map_schedule_element", 0, "01,02,03,-1,-1,-1"],
             [" ", "check-in", "checkin"],
             ["b", "last check-in successful", "report_checkin"],
         ],
@@ -232,6 +253,12 @@
                 "West",
                 "North-West",
             ],
+            movement_commands: [
+              "forward",
+              "backward",
+              "left",
+              "right",
+            ]
         }
     };
 

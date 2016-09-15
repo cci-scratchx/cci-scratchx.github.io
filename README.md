@@ -7,7 +7,7 @@
 ## Prerequisites
 
 * A running instance of [CCI](https://gitlab.emea.irdeto.com/iaa-hackathon/irdeto-cci)
-* [Node.js](https://nodejs.org/en/download/current/)
+* [Node.js](https://nodejs.org/en/download/current/) (pre-installed on Raspberry Pi)
 
 ## Hosted ScratchX and Extension
 
@@ -23,23 +23,23 @@ Also sample projects are available (download and open in do File -> Load Project
 
 ## Local ScratchX and Extension
 
-### Build And Run ScratchX locally
+### Run ScratchX locally
  
-See https://github.com/LLK/scratchx 
+Download/clone ScratchX and run on your laptop or on the Raspberry Pi. For instructions see https://github.com/LLK/scratchx 
 
 ### Make Extension Available
 
-Run the simple web server to serve the Scratch extension file:
+Clone this repository and run the simple web server (on your laptop or on the Raspberry Pi) to serve the Scratch extension file:
 
 ```
-cd scratchx
+cd cci-scratchx/scratchx
 npm install http-server -g
 http-server -p 8080
 ```
 
-### Run ScratchX
+### Use ScratchX
 
-When both ScratchX and the extension file server are running (e.g. on `localhost`) load ScratchX with the extension:
+When both ScratchX and the extension file server are running (e.g. on `localhost`) start ScratchX with the extension (or load via menu):
 
 http://localhost:8000/?url=http://localhost:8080/cci.js
 
@@ -56,7 +56,7 @@ npm install
 Make sure CCI is running. Then run the CCI ScratchX Helper App:
 
 ```
-node index.js -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tmp/cci/neighbors -x /tmp/cci/checkin
+nohup node index.js -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m /tmp/cci/neighbors -x /tmp/cci/checkin &
 ```
 
 (assuming CCI working directory is `/tmp/cci/`).
@@ -82,17 +82,22 @@ node index.js -p 8888 -l /tmp/cci/lps -v /tmp/cci/vehicle -c /tmp/cci/compass -m
 
 ### Moving GoPiGo2
 
+* `POST /move-{direction}?duration={duration}` 
+    Moves/turns the car in the specified direction for the specified duration (in ms). Allowed directions are `forward`, `backward`, `left`, `right`.
+    Does not return anything (empty body).
+
+* `POST /stop`
+    Stops the car.
+    Does not return anything (empty body).
+    
+* `POST /move?duration={duration}&distance={distance}` 
+    Moves the car in the current direction for the specified duration (in ms) or for the specified distance (or until stopped using `POST /stop` when neither duration or distance is specified) .
+    Does not return anything (empty body).
+    
 * `POST /turn?heading={heading}` 
     Turns the car to head the specified direction (if needed) - `north`, `east`, `south`, `west` or the numeric heading (values from 0 to 360), e.g. `57`.
     Does not return anything (empty body). 
     
-* `POST /move?duration={duration}&distance={distance}` 
-    Moves the car in the current direction for the specified duration (in ms) or for the specified distance (or until stopped using `GET /stop` when neither duration or distance is specified) .
-    Does not return anything (empty body).
-    
-* `POST /stop`
-    Stops the car.
-    Does not return anything (empty body).
 
 ### The "Arena"
  
@@ -125,6 +130,6 @@ For advanced ScratchX information see https://github.com/LLK/scratchx/wiki
 
 ## Known Issues and Limitations
 
-* When loading a saved project which was build with the extension hosted locally all the custom blocks appear as `undefined`.
+* When loading a saved project which was build with the extension hosted locally all the custom blocks may appear as `undefined`.
 * Helper App is single threaded.
-* ScratchX block 'turn the car to %n' is very unstable for some reason. 
+* Due to possible interference the compass related operations are not very reliable. 
